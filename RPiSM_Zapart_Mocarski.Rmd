@@ -1,0 +1,190 @@
+---
+title: "RPiSM_Zapart_Mocarski"
+author: "Radosław Mocarski i Tomasz Zapart"
+date: "2023-01-24"
+output: html_document
+---
+
+Zad. 2
+Zakładając, że zmienna losowa 𝑋 ma rozkład Bernoulliego o parametrach: 𝑝 = 1 i n= 4 obliczyć jej wartość oczekiwaną i wariancję oraz prawdopodobieństwo, że 𝑋 będzie większe niż 2.
+```{r}
+losowe<-rbinom(1000,4,0.5)
+mean(losowe)
+var(losowe)
+1-pbinom(2,4,0.5)
+```
+
+
+Zad 17
+Niech zmienna losowa 𝑋 ma rozkład 𝑁(2,3). Obliczyć 𝑃(𝑋^2 + 1 < 5)
+```{r}
+X<-rnorm(10000000,2,3)
+Z<-X^2+1
+srednia<-mean(Z)
+odchylenie<-sd(Z)
+pnorm(5,srednia,odchylenie)
+```
+
+
+#Zestaw 4
+Zadanie 7
+Średnio, co 20 pasażer wsiadający do autobusu na pewnym przystanku kupuje bilet 
+w automacie. Wiedząc, że dziennie z tego przystanku odjeżdża 700 osób obliczyć, ile 
+biletów powinna zawierać kaseta załadowana do automatu biletowego by 
+z prawdopodobieństwem 0,95 wystarczyła na, co najmniej 30 dni pracy?
+```{r}
+p<-1/20
+n<-700*30
+srednia<-n*p
+odchylenie<-sqrt(n*p*(1-p))
+x<-0
+bilet<-500
+while(x<0.95)
+{
+  bilet<-bilet+1
+  x<-pnorm(bilet,srednia,odchylenie)
+  
+}
+bilet
+```
+Monte Carlo
+```{r}
+wektor2<-c()
+for(a in 1:10000){
+  b<-rbinom(1,n,1/20)
+  wektor2<-c(wektor2,b)
+}
+wektor2<-sort(wektor2,decreasing = T)
+wektor2[500]
+```
+
+
+Zadanie 18 
+Zakładając, że czas rozmowy telefonicznej z konsultantem BOK ma rozkład o wartości
+oczekiwanej 5 minut i odchyleniu stand. 3 minuty, obliczyć jakie jest
+prawdopodobieństwo, że grupa 20 konsultantów w trakcie 6 godzin efektywnej pracy
+zdoła przeprowadzić 1440 rozmów.
+```{r}
+srednia <- 9
+odchylenie <- 1.2
+max <-4400
+n<-500
+pnorm(4400,srednia*n,odchylenie*sqrt(n))
+```
+Monte Carlo
+```{r}
+wektor2<-c()
+for(a in 1:100000){
+  b<-rnorm(500,srednia,odchylenie)
+  b<-sum(b)
+  wektor2<-c(wektor2,b)
+}
+sum(wektor2<4400)/100000
+```
+
+
+Zad 7
+Pewna maszyna pakuje cukier do torebek. W celu zbadania prawidłowości tego procesu 
+zważono 20 torebek z cukrem. W wyniku tych ważeń uzyskano następujące wyniki: 
+średnia waga jednej torebki = 0,9 kg, a odchylenie standardowe = 0,15. Na poziomie 
+istotności 𝛼 = 0,01 zweryfikować hipotezę, że maszyna sypie średnio do torebki 1 kg 
+cukru przeciwko hipotezie alternatywnej, że maszyna sypie mniej niż 1 kg cukru do 
+torebki.
+```{r}
+probka<-20
+srednia <-0.9
+odchylenie <-0.15
+proba <- rnorm(probka,mean = srednia, sd = odchylenie)
+(test <- t.test(proba, mu=1,alternative = "less",conf.level=0.99))
+test$p.value<0.01
+```
+Należy odrzucić hipoteze H0
+
+
+Zadanie 19
+15 osób, spośród badanej grupy 134 osób przychodzących do kina, kupiło popcorn. Czy na 
+tej podstawie można stwierdzić, że istotnie więcej niż 10% przychodzących do kina kupuje 
+popcorn?
+```{r}
+results<-c()
+a<-binom.test(15,134,0.1,"greater")
+a
+results<-c(results,a$p.value)
+a$p.value<0.05
+```
+Nie ma podstaw do odrzucenia hipotezy H0
+
+
+Zadanie 32
+W grupie 80 osób wylosowanej spośród kandydatów ubiegających się o pracę w pewnej 
+firmie było 46 kobiet. Czy na tej podstawie można stwierdzić, że większość kandydatów 
+stanowią kobiety?
+```{r}
+results<-c()
+a<-prop.test(46,80,0.5,"greater")
+a
+results<-c(results,a$p.value)
+a$p.value<0.05
+```
+Nie ma podstaw do odrzucenia hipotezy H0
+
+
+Zadanie 36
+W pewnej firmie kurierskiej wprowadzono zmiany organizacyjne mające na celu poprawę 
+terminowości doręczania przesyłek. Aby ocenić skuteczność tych zmian porównano wyniki 
+sprzed i po wprowadzonych zmianach. Przed zmianami na 80 przesyłek 15 było 
+dostarczonych z opóźnieniem. Natomiast po zmianach na 45 przesyłek 8 było 
+dostarczonych z opóźnieniem. Czy wprowadzenie zmian organizacyjnych zmniejszyło 
+istotnie odsetek przesyłek dostarczanych z opóźnieniem?
+
+
+Hipoteza zerowa - proporcja przesyłek dostarczanych z opóźnieniem przed i po zmianach jest taka sama
+Hipoteza alternatywna - proporcja przesyłek dostarczanych z opóźnieniem przed zmianami jest większa niż po zmianach
+```{r}
+x1<-c(8,15)
+x2<-c(45,80)
+test<-prop.test(x1,x2, alternative="less")
+test$p.value<0.05
+```
+Nie ma podstaw do odrzucenia hipotezy H0
+
+
+Zadanie 7 zmienone dane
+Zbadać na poziomie istotności 0,05 czy dane zawarte w poniższej tabeli mają rozkład 
+Poissona:
+Wartość 0 1 2 3 4 5
+Liczność 11,30,44,92,82,78
+
+H0: ma rozkład Poissona
+H1: nie ma rozkładu Poissona
+```{r}
+x = rep(0:5, times=c(11,30,44,92,82,78))
+table(x)
+value <- c(0, 1, 2, 3, 4, 5)
+licznosc <- c(11,30,44,92,82,78)
+lambda <- sum(value*licznosc)/sum(licznosc)
+pi <- dpois(value[0:5], lambda)
+pi <- c(pi, 1-sum(pi))
+pi
+
+#Sprawdzam czy można przeprowadzic chisq test (czyli czy n*pi > 5)
+sum(licznosc) * pi
+chisq.test(x = licznosc, p = pi) # powinno być dla df = 5
+```
+p.value < 0.05 , nieodrzucamy hipotez h0
+
+
+Zadanie 16
+ale zmienione dane. Na podstawie sygnałów docierających do dyrekcji ZOO zamontowano większą liczbę koszy
+na śmieci. Po tej operacji zbadano opinię o ZOO wśród odwiedzających. Wyniki tego
+badania porównano z wcześniejszymi. Czy na tej podstawie można twierdzić, że istnieje
+zależność pomiędzy montażem koszy na śmieci z zmianą postrzegania ZOO?
+  
+H0 są niezależne
+H1 są zależne
+```{r}
+df <- data.frame(negatywna=c(35,5),mozebyc=c(45,25),pozytywna=c(20,70),row.names = c("Przed zmianami ","Po zmianie "))
+test<-chisq.test(df)
+test$p.value<0.05
+```
+Należy odrzucić hipotezę H0
